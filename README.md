@@ -1,14 +1,10 @@
 # ledger
 
-A Clojure library designed to ... well, that part is up to you.
+Toy bank ledger system implemented in Clojure. Demonstrates concurrent access to a central data structure by multiple threads.
 
 ## Usage
+main program logic in 
+/src/ledger/core.clj
 
-FIXME
-
-## License
-
-Copyright © 2016 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+consistency checks in 
+/src/ledgerTest.clj
