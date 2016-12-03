@@ -1,12 +1,23 @@
 (ns ledger.core)
 (import java.util.Date)
 
+;;The purpose of this program is to explore the concurrency and
+;;multi-threading capabilities of Clojure.
+;;A bank ledger is simulated and multiple threads are used to modify
+;;the accounts in a concurrent manner. Consistency checking is performed using
+;;the functions found in ledgerTest.clj
+
+;;Programming in Clojure coursework
+;;Assigned by Doctor Jeffery Ward
+
+;;add account if it doesn't already exist
 (defn add-account [ ledger id name amt ]
   (cond
     (contains? @ledger id) nil
     :else (dosync
             (alter ledger assoc id { :balance (ref amt) :name name }))))
 
+;;deposit some amount into an account
 (defn deposit [ ledger id amt ]
   (cond
     (= (contains? @ledger id) false) nil
@@ -15,7 +26,7 @@
             @((@ledger id) :balance))))
         
 
-
+;;withdraw money from an account
 (defn withdraw [ ledger id amt ]
   (cond
     (= (contains? @ledger id) false) nil
@@ -25,6 +36,8 @@
             @((@ledger id) :balance))))
             
 
+;;transfer money from one account into another
+;;potential cause of data inconsistency
 (defn transfer [ ledger from-id to-id amt ]
   (cond 
     (not= (contains? @ledger from-id) (contains? @ledger to-id)) nil
@@ -45,6 +58,7 @@
       (alter ledger dissoc id)
       removed)))
 
+;;define a new ledger and manually add and manipulate some accounts
 (def ledg (ref {}))
 
 (add-account ledg 2006 "Frances Allen" 1000)
@@ -86,6 +100,7 @@
 (println @ledg)
 (println)
 
+;;function for ensuring that data consistency has not been violated
 (defn consistency-check [ ledg num-accounts total-balances ]
   (dosync 
     (def temp (atom 0))
@@ -103,12 +118,15 @@
       :else true
       )))
 
+;;define agent and refs for keeping track of attempted and succesful transfers
 (def attempted-transfer-count ( agent 0))
 (def successful-transfer-count ( ref 0))
 (def remove-and-add-count (ref 0))
 
 ;Map for randomly selecting ids
 (def acctMap { 0 2006, 1 2007, 2 2008, 3 2009})
+
+;Get current time and start four threads
 
 (defn now [] (new java.util.Date))
 
